@@ -1,0 +1,15 @@
+node_modules/
+dist/
+test-dist/
+test-results/
+playwright-report/
+
+# Environment files: only the example is tracked.
+.env
+.env.*
+!.env.example
+
+# Markdown stays local.
+*.md
+
+.DS_Store

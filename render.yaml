@@ -1,0 +1,48 @@
+# Render Blueprint for the QA Ninja web app: a static site built from src/ by build.js.
+# Keep the rewrites and headers in sync with serve.js, which the tests and local development use.
+services:
+  - type: web
+    name: qaninja-app
+    runtime: static
+    buildCommand: npm run build
+    staticPublishPath: ./dist
+    envVars:
+      # Public build settings (see .env.example). Set them in the Render dashboard.
+      - key: API_BASE_URL
+        sync: false
+      - key: CLERK_PUBLISHABLE_KEY
+        sync: false
+      - key: CLERK_FRONTEND_API
+        sync: false
+      - key: APP_ENV
+        value: production
+    routes:
+      - type: rewrite
+        source: /sign-in
+        destination: /sign-in.html
+      - type: rewrite
+        source: /account
+        destination: /account.html
+      - type: rewrite
+        source: /dashboard
+        destination: /dashboard.html
+      - type: rewrite
+        source: /workflow/*
+        destination: /workflow.html
+    headers:
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: same-origin
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      # The rest of the policy is a meta tag in each page, built from the configured origins.
+      - path: /*
+        name: Content-Security-Policy
+        value: "frame-ancestors 'none'"
+      - path: /assets/fonts/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable

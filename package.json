@@ -1,0 +1,16 @@
+{
+  "name": "qaninja-app",
+  "version": "2.0.0",
+  "private": true,
+  "description": "QA Ninja web app: sign-in, account, and the recordings dashboard, as a static site",
+  "scripts": {
+    "build": "node build.js",
+    "dev": "node --env-file-if-exists=.env.local build.js && node serve.js",
+    "start": "node serve.js",
+    "test": "playwright test"
+  },
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@playwright/test": "1.63.0"
+  }
+}

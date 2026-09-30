@@ -1,0 +1,11 @@
+<meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- build.js fills in the policy: this site, the API origin, and Clerk. frame-ancestors is sent as a header. -->
+  <meta http-equiv="Content-Security-Policy" content="%CSP%">
+  <link rel="icon" type="image/png" href="/assets/mark-48.png">
+  <link rel="stylesheet" href="/assets/app.css">
+  <script defer src="/assets/config.js"></script>
+  %CLERK_SCRIPTS%
+  <!-- The Clerk theme must load before app.js, which passes it to Clerk.load. -->
+  <script defer src="/assets/clerk-theme.js"></script>
+  <script type="module" src="/assets/app.js"></script>

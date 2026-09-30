@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- @head -->
+  <title>Sign in to QA Ninja</title>
+</head>
+<!-- The legacy sign-in look around Clerk's form: one page for every surface (extension, web app); ?mode=signup shows sign-up. -->
+<body class="auth-page" data-page="sign-in">
+  <a class="skip-link" href="#content">Skip to content</a>
+  <main id="content" class="page">
+    <p id="message" class="notice" role="status" aria-live="polite"></p>
+    <section class="auth-card" aria-label="Sign in to QA Ninja">
+      <a class="auth-hero" href="/"><img src="/assets/lockup.svg" alt="QA Ninja home" width="250" height="250"></a>
+      <p class="auth-subtitle">Sign in to capture, compose, and automate at the speed of your next click.</p>
+      <div class="auth-panel">
+        <div id="clerk-sign-in"></div>
+        <button type="button" id="auth-retry" class="quiet" hidden>Try again</button>
+        <div id="auth-unconfigured" hidden>
+          <h1>Log in</h1>
+          <p class="notice error" role="alert">Sign-in is not configured yet. XPath Finder in the extension remains available.</p>
+        </div>
+        <noscript>Enable JavaScript to sign in.</noscript>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
