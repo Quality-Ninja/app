@@ -1,4 +1,4 @@
-// Response shapes of the QA Ninja API (api/product_routes.py), field for field.
+// Response shapes of the QA Ninja API (api/src/core/product_routes.py), field for field.
 
 export type PlanCode = 'FREE' | 'BASIC' | 'SUPER'
 
