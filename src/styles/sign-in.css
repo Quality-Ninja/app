@@ -1,0 +1,118 @@
+/*
+ * Sign-in page (/sign-in, and ?mode=signup): the legacy sign-in look around Clerk's form. A blue-navy radial page, a
+ * glass card with a gold spotlight behind its content, the full lockup, the gold subtitle, and a translucent panel.
+ * Uppercase labels and button (set in lib/clerk-theme.ts) are the legacy screen's; they appear nowhere else on the site.
+ */
+html body.auth-page {
+  min-height: 100vh;
+  background: radial-gradient(
+      circle at top left,
+      #5d7fb2,
+      #1e2d47 35%,
+      #071223 75%
+    )
+    fixed;
+}
+
+.auth-page .page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--space-5) var(--space-4);
+}
+
+.auth-page #message:not(:empty) {
+  width: min(520px, 100%);
+}
+
+.auth-card {
+  position: relative;
+  isolation: isolate;
+  width: min(520px, 100%);
+  padding: var(--space-4) var(--space-5) var(--space-5);
+  border-radius: 24px;
+  background: linear-gradient(
+    180deg,
+    rgb(31 57 86 / 0.94),
+    rgb(18 33 51 / 0.94)
+  );
+  box-shadow: 0 20px 60px rgb(2 5 18 / 0.75);
+  overflow: hidden;
+}
+
+.auth-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(
+    circle at top,
+    rgb(241 196 15 / 0.2),
+    transparent 45%
+  );
+  pointer-events: none;
+}
+
+.auth-hero {
+  display: block;
+  width: fit-content;
+  margin: 0 auto;
+  border-radius: var(--radius-sheet);
+}
+
+.auth-hero img {
+  display: block;
+  width: 250px;
+  max-width: 100%;
+  height: auto;
+}
+
+.auth-subtitle {
+  max-width: 36ch;
+  margin: var(--space-1) auto var(--space-5);
+  color: var(--gold);
+  line-height: 1.6;
+  text-align: center;
+}
+
+.auth-panel {
+  padding: var(--space-4);
+  border: 1px solid rgb(255 255 255 / 0.25);
+  border-radius: 18px;
+  background: rgb(255 255 255 / 0.07);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.1);
+}
+
+.auth-panel h1 {
+  font-size: var(--text-lg);
+}
+
+/* Until Clerk renders into the mount, a quiet placeholder holds its place; it gives way to Try again on failure. */
+#clerk-sign-in:empty::before {
+  content: 'Loading sign-in…';
+  display: block;
+  padding: var(--space-5) 0;
+  color: var(--mist);
+  text-align: center;
+}
+
+.auth-panel:has(#auth-retry:not([hidden])) #clerk-sign-in::before {
+  content: none;
+}
+
+#auth-retry {
+  margin-top: var(--space-3);
+}
+
+@media (max-width: 480px) {
+  .auth-card {
+    padding: var(--space-3) var(--space-3) var(--space-4);
+    border-radius: 20px;
+  }
+
+  .auth-hero img {
+    width: 200px;
+  }
+}

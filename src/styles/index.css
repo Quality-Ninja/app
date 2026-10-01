@@ -1,0 +1,16 @@
+/*
+ * QA Ninja web app: the "Trail map" direction shared with the extension side panel (design/design.md).
+ * Gold marks the path and the target: the trail through a recording's steps, the linked step, the one primary action
+ * in view, the current page, and keyboard focus. Light and texture appear only in the header, empty states, and
+ * sign-in. Every visual state lives in these files; the CSP forbids inline styles unless Clerk is configured (and then
+ * allows them only for Clerk's own elements).
+ */
+@import './tokens.css';
+@import './base.css';
+@import './shell.css';
+@import './controls.css';
+@import './trail.css';
+@import './dashboard.css';
+@import './workflow.css';
+@import './account.css';
+@import './sign-in.css';

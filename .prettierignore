@@ -1,0 +1,20 @@
+# Built and generated files
+dist
+test-dist
+test-results
+playwright-report
+package-lock.json
+src/routeTree.gen.ts
+
+# The token block must stay byte-identical with extension/sidebar.css (see design/design.md).
+src/styles/tokens.css
+
+# The browser tests keep their own style, like the extension's suite.
+tests
+playwright.config.cjs
+
+# Markdown stays local and hand-formatted.
+*.md
+
+# The router plugin's scratch folder
+.tanstack

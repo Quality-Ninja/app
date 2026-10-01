@@ -1,0 +1,54 @@
+/*
+ * Design tokens, shared with the extension side panel. The block between the fences is byte-identical to the one at the
+ * top of extension/sidebar.css, and the browser test "design tokens match the extension side panel" checks it: change
+ * both together (design/design.md). Prettier leaves this file alone so the bytes stay put.
+ */
+
+/* tokens:start */
+:root {
+  color-scheme: dark;
+  --navy: #1b2631;
+  --well: #16212b;
+  --raised: #2c3e50;
+  --line: #34495e;
+  --edge: #6b7d8f;
+  --paper: #fffff7;
+  --mist: #bdc3c7;
+  --muted: #9aa8b6;
+  --gold: #f1c40f;
+  --gold-wash: rgb(241 196 15 / 0.12);
+  --signal: #e74c3c;
+  --danger-text: #f08a7e;
+  --ok: #2ecc71;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --radius-target: 2px;
+  --radius-control: 4px;
+  --radius-container: 8px;
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-md: 0.9375rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 2rem;
+  --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-code: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --shadow-overlay: 0 8px 24px rgb(0 0 0 / 0.35);
+  --ease: 120ms ease-out;
+  /* Trail map: gold marks the path and the target. Trail gold stays at 0.6 alpha or more (4.2:1 on navy). */
+  --gold-hi: #ffc747;
+  --gold-trail: rgb(241 196 15 / 0.6);
+  --gold-glow: 0 0 14px rgb(241 196 15 / 0.3);
+  --radius-sheet: 12px;
+  --shadow-lift: 0 1px 2px rgb(3 8 16 / 0.4), 0 8px 24px rgb(3 8 16 / 0.28);
+  --highlight-top: inset 0 1px 0 rgb(255 255 247 / 0.06);
+  --trail-dots: radial-gradient(circle, var(--gold-trail) 1.25px, transparent 1.75px);
+  --texture-grid: linear-gradient(rgb(241 196 15 / 0.05) 1px, transparent 1px), linear-gradient(90deg, rgb(241 196 15 / 0.05) 1px, transparent 1px);
+  --spotlight: radial-gradient(100% 140px at 50% 0, rgb(241 196 15 / 0.12), transparent 70%);
+}
+/* tokens:end */

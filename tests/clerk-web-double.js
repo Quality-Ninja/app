@@ -1,6 +1,9 @@
-// Served in place of Clerk's CDN scripts by the app tests, never by the application.
+// Served in place of Clerk's CDN scripts by the app tests, never by the application. It implements the part of Clerk
+// the app uses (src/lib/clerk.ts).
 (() => {
-  const listeners = [];
+  // The API's test server (api/tests/browser_server.py) signs a real token for each test user.
+  const api = 'http://127.0.0.1:8766';
+  const listeners = new Set();
   const current = () => sessionStorage.getItem('test_clerk_user');
   function activate(id) {
     if (id) sessionStorage.setItem('test_clerk_user', id); else sessionStorage.removeItem('test_clerk_user');
@@ -9,8 +12,7 @@
       window.tokenRequests = (window.tokenRequests || 0) + 1;
       // A test can make the next cached token stale, as if it had expired in the tab.
       if (window.staleTokenOnce && !skipCache) { window.staleTokenOnce = false; return 'stale-token'; }
-      // The API's test server signs a real token for this user (see api/tests/browser_server.py).
-      const { token } = await (await fetch(window.QaNinjaConfig.apiBaseUrl + '/_test/session?user_id=' + id)).json();
+      const { token } = await (await fetch(api + '/_test/session?user_id=' + id)).json();
       return token;
     }} : null;
     listeners.forEach(listener => listener({ user: Clerk.user }));
@@ -24,11 +26,14 @@
       node.append(button);
     }
   };
+  const unmount = node => node.replaceChildren();
   window.Clerk = {
     load: async options => { window.loadOptions = options; },
-    addListener: listener => { listeners.push(listener); listener({ user: Clerk.user }); },
+    addListener: listener => { listeners.add(listener); listener({ user: Clerk.user }); return () => listeners.delete(listener); },
     mountSignIn: mount('signIn'),
+    unmountSignIn: unmount,
     mountSignUp: mount('signUp'),
+    unmountSignUp: unmount,
     signOut: async ({ redirectUrl }) => { sessionStorage.removeItem('test_clerk_user'); location.assign(redirectUrl); },
     switchUser: activate
   };

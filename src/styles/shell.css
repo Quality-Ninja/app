@@ -1,0 +1,327 @@
+/* Page frame */
+.skip-link {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+  z-index: 10;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-control);
+  background: var(--gold);
+  color: var(--navy);
+  font-weight: 600;
+  transform: translateY(-200%);
+}
+
+.skip-link:focus {
+  transform: none;
+}
+
+/* The header band is lit like the side panel's: a gold spotlight over the faint grid, fading downward. */
+.site-header {
+  position: relative;
+  isolation: isolate;
+  border-bottom: 1px solid var(--line);
+}
+
+.site-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--spotlight), var(--texture-grid);
+  background-size:
+    auto,
+    16px 16px,
+    16px 16px;
+  mask-image: linear-gradient(#000 35%, transparent);
+  pointer-events: none;
+}
+
+.site-header-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0 var(--space-6);
+  max-width: 1000px;
+  min-height: 56px;
+  margin: 0 auto;
+  padding: 0 var(--space-5);
+}
+
+/* The gold-face mark beside the name, as at the head of the side panel. */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+}
+
+.brand:hover {
+  color: var(--paper);
+}
+
+.brand img {
+  width: 28px;
+  height: 28px;
+}
+
+.site-header .signout {
+  align-self: center;
+  margin-left: auto;
+}
+
+.page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-5) var(--space-7);
+}
+
+/* main takes focus after moving between pages, for screen readers. It isn't a control, so it shows no ring. */
+.page:focus {
+  outline: none;
+}
+
+/* Tabs: the same underline component the side panel uses for its modes. */
+.tabs {
+  display: flex;
+  gap: var(--space-5);
+}
+
+.tabs a {
+  display: flex;
+  align-items: center;
+  margin-bottom: -1px;
+  padding: 0 var(--space-1);
+  border-bottom: 2px solid transparent;
+  color: var(--muted);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.tabs a:hover {
+  border-bottom-color: var(--edge);
+  color: var(--paper);
+}
+
+.tabs a[aria-current],
+.tabs a[aria-current]:hover {
+  border-bottom-color: var(--gold);
+  color: var(--paper);
+}
+
+.tabs a:focus-visible {
+  outline-offset: -2px;
+}
+
+/* Notices explain: #message is a persistent live region that takes no space while empty. */
+.notice {
+  margin: 0;
+  padding: 0;
+  overflow-wrap: anywhere;
+}
+
+.notice:not(:empty) {
+  margin: 0 0 var(--space-5);
+  padding: var(--space-3) var(--space-4);
+  border-left: 2px solid var(--edge);
+  border-radius: 0 var(--radius-control) var(--radius-control) 0;
+  background: var(--raised);
+}
+
+.notice.error:not(:empty) {
+  display: flex;
+  gap: var(--space-2);
+  border-left-color: var(--signal);
+  background: color-mix(in srgb, var(--signal) 14%, var(--navy));
+}
+
+.notice.error:not(:empty)::before {
+  content: '!' / '';
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  border-radius: 50%;
+  background: var(--signal);
+  color: var(--navy);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.notice p {
+  margin: 0;
+}
+
+/* Toasts confirm a finished action, low in the window, and leave on their own. */
+.toast-region {
+  position: fixed;
+  right: var(--space-4);
+  bottom: var(--space-4);
+  left: var(--space-4);
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  min-width: 0;
+  max-width: min(100%, 36rem);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-container);
+  background: var(--raised);
+  box-shadow: var(--highlight-top), var(--shadow-overlay);
+  pointer-events: auto;
+  cursor: default;
+}
+
+.toast svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  color: var(--ok);
+}
+
+.toast-body {
+  display: grid;
+  min-width: 0;
+}
+
+.toast-title {
+  font-weight: 600;
+}
+
+.toast-detail {
+  overflow: hidden;
+  color: var(--mist);
+  font-size: var(--text-xs);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.toast-detail:empty {
+  display: none;
+}
+
+.toast[data-state='leaving'] {
+  opacity: 0;
+  transform: translateY(4px);
+}
+
+/* Page heads */
+.page-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-5);
+  margin-bottom: var(--space-5);
+}
+
+.page-head p {
+  margin: var(--space-2) 0 0;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-bottom: var(--space-4);
+  color: var(--mist);
+  text-decoration: none;
+}
+
+.back-link svg {
+  width: 16px;
+  height: 16px;
+}
+
+.page > section {
+  margin-top: var(--space-6);
+}
+
+.page > .auth + section {
+  margin-top: var(--space-7);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--line);
+}
+
+section > h2 {
+  margin-bottom: var(--space-3);
+}
+
+/* Error pages */
+.error-page {
+  max-width: 36rem;
+}
+
+.error-page .button {
+  margin-top: var(--space-2);
+}
+
+.lede {
+  color: var(--mist);
+  font-size: var(--text-lg);
+}
+
+@media (max-width: 640px) {
+  .site-header-inner {
+    padding: 0 var(--space-4);
+  }
+
+  .site-header .tabs {
+    order: 3;
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .page {
+    padding: var(--space-5) var(--space-4) var(--space-6);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .toast {
+    transition:
+      opacity 160ms ease-in,
+      transform 160ms ease-in;
+    animation: rise 200ms cubic-bezier(0.2, 0.9, 0.3, 1);
+  }
+
+  /* The back arrow leans toward where it goes. */
+  .back-link svg {
+    transition: transform 160ms ease-out;
+  }
+
+  .back-link:hover svg {
+    transform: translateX(-2px);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@media (forced-colors: active) {
+  .tabs a[aria-current] {
+    border-color: Highlight;
+  }
+
+  .notice:not(:empty),
+  .toast {
+    border: 1px solid CanvasText;
+  }
+}

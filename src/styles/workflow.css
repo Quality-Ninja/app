@@ -1,0 +1,107 @@
+/* A recording: its files, then its steps on the trail. */
+.download-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-4) var(--space-6);
+}
+
+.download-group h3 {
+  margin-bottom: var(--space-2);
+  color: var(--mist);
+  font-size: var(--text-sm);
+}
+
+.download-group ul {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.download-group .code {
+  display: block;
+  font-size: var(--text-xs);
+}
+
+/* Steps are a sequence, so they are numbered beside the trail. */
+.step-list {
+  --rail-inset: 40px;
+  --node-top: 17px;
+  --item-edge: 2px;
+  margin: 0;
+  padding: 0 0 0 var(--rail-inset);
+}
+
+.step-list > li::marker {
+  color: var(--muted);
+  font: 600 var(--text-sm) / 1 var(--font-ui);
+  font-variant-numeric: tabular-nums;
+}
+
+.step {
+  padding: var(--space-3) var(--space-3) var(--space-5);
+  border: 2px solid transparent;
+  border-radius: var(--radius-target);
+  scroll-margin-top: var(--space-5);
+}
+
+.step-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 240px);
+  gap: var(--space-3) var(--space-5);
+}
+
+.step-label {
+  font-size: var(--text-md);
+  overflow-wrap: anywhere;
+}
+
+.step-url {
+  margin: var(--space-1) 0 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.step-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.step-shot {
+  display: block;
+  align-self: start;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--well);
+  overflow: hidden;
+}
+
+.step-shot img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: contain;
+}
+
+/* Until its screenshot arrives, the frame holds the place without a broken-image icon. */
+.step-shot img:not([src]) {
+  visibility: hidden;
+}
+
+.step-shot:hover {
+  border-color: var(--edge);
+}
+
+@media (max-width: 640px) {
+  .step-list {
+    --rail-inset: 32px;
+  }
+
+  .step-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

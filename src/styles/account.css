@@ -1,0 +1,62 @@
+/* Account: plan and billing. */
+.auth {
+  max-width: 26rem;
+}
+
+.auth .hint {
+  margin-bottom: var(--space-5);
+}
+
+.plans {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+.plan {
+  padding: var(--space-5);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-container);
+  background: var(--raised);
+  box-shadow: var(--highlight-top);
+}
+
+.price {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-xl);
+  font-weight: 600;
+}
+
+.price .meta {
+  font-weight: 400;
+}
+
+.features {
+  margin: var(--space-3) 0 var(--space-4);
+  padding-left: var(--space-5);
+  color: var(--mist);
+}
+
+.features li + li {
+  margin-top: var(--space-1);
+}
+
+.plan .row {
+  margin-bottom: 0;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--space-2) var(--space-5);
+  margin: var(--space-4) 0 var(--space-5);
+}
+
+.facts dt {
+  color: var(--muted);
+}
+
+.facts dd {
+  margin: 0;
+}
