@@ -73,6 +73,8 @@ test('app: the recording page loads screenshots and files with the sign-in token
 
 test('app: deleting sends a bearer token and retries a stale one once', async ({ page }) => {
   await signIn(page, 'email-code', '/dashboard');
+  // The list's own requests use the token first, so wait for it before making the next one stale.
+  await expect(page.locator('[data-delete="1"]')).toBeVisible();
   const authorizations = [];
   page.on('request', request => { if (request.method() === 'DELETE') authorizations.push(request.headers().authorization); });
   await page.evaluate(() => { window.staleTokenOnce = true; });
@@ -93,7 +95,7 @@ test('app: switching accounts reloads the page for the new account', async ({ pa
 
 test('app: sign-in and sign-up share the legacy page and link to each other', async ({ page }) => {
   await page.goto(app + '/sign-in?next=/account');
-  await expect(page.locator('.auth-card img[src="/assets/lockup.svg"]')).toBeVisible();
+  await expect(page.locator('.auth-card img[src^="/assets/lockup-"]')).toBeVisible();
   await expect(page.locator('.auth-subtitle')).toHaveText('Sign in to capture, compose, and automate at the speed of your next click.');
   await expect(page).toHaveTitle('Sign in to QA Ninja');
   await expect(page.locator('.site-header')).toHaveCount(0);
@@ -156,25 +158,67 @@ test('app: unknown pages are a 404 with a way back', async ({ page }) => {
   const response = await page.goto(app + '/nope');
   expect(response.status()).toBe(404);
   await expect(page.locator('h1')).toHaveText('Page not found');
+  await expect(page.locator('.site-header')).toBeVisible();
   expect(response.headers()['x-frame-options']).toBe('DENY');
 });
 
-test('app: built pages carry the CSP and no inline scripts or secret keys', async () => {
+test('app: the built site carries the CSP, hashed assets, and no inline scripts or secret keys', async () => {
   const dist = path.join(__dirname, '..', 'test-dist');
   const pages = fs.readdirSync(dist).filter(name => name.endsWith('.html'));
-  expect(pages.sort()).toEqual(['404.html', 'account.html', 'dashboard.html', 'index.html', 'sign-in.html', 'workflow.html']);
+  // One page for every path; 404.html is the same page, served with a 404 status.
+  expect(pages.sort()).toEqual(['404.html', 'index.html']);
   for (const name of pages) {
     const html = fs.readFileSync(path.join(dist, name), 'utf8');
     expect(html, name).toMatch(/<meta http-equiv="Content-Security-Policy" content="default-src 'self';[^"]* connect-src 'self' http:\/\/127\.0\.0\.1:8766 /);
     expect(html, name).not.toMatch(/<script(?![^>]*\bsrc=)/);
-    expect(html, name).not.toMatch(/sk_(test|live)_/);
+    // Clerk's deferred scripts run before the app's module entry.
+    expect(html.indexOf('clerk.browser.js'), name).toBeGreaterThan(0);
+    expect(html.indexOf('clerk.browser.js'), name).toBeLessThan(html.indexOf('type="module"'));
   }
-  expect(fs.readFileSync(path.join(dist, 'assets', 'config.js'), 'utf8')).not.toMatch(/sk_(test|live)_/);
+  // Every asset is named by its content, which is what lets render.yaml cache /assets/* for good.
+  for (const name of fs.readdirSync(path.join(dist, 'assets'))) expect(name).toMatch(/-[\w-]{8}\.[a-z0-9]+$/);
+  for (const name of fs.readdirSync(dist, { recursive: true }).filter(name => /\.(html|js|css)$/.test(name))) {
+    expect(fs.readFileSync(path.join(dist, name), 'utf8'), name).not.toMatch(/sk_(test|live)_/);
+  }
 });
 
 test('app: design tokens match the extension side panel', async () => {
   const sidebar = path.resolve(__dirname, '../../extension/sidebar.css');
   test.skip(!fs.existsSync(sidebar), 'The extension folder is not next to the app.');
   const tokens = file => /\/\* tokens:start \*\/.*?\/\* tokens:end \*\//s.exec(fs.readFileSync(file, 'utf8'))?.[0];
-  expect(tokens(path.join(__dirname, '..', 'src', 'assets', 'app.css'))).toBe(tokens(sidebar));
+  expect(tokens(path.join(__dirname, '..', 'src', 'styles', 'tokens.css'))).toBe(tokens(sidebar));
+});
+
+test('app: recordings sit on the trail and open in place', async ({ page }) => {
+  await signIn(page, 'email-code', '/dashboard');
+  await expect(page.locator('.recording')).toHaveCount(1);
+  await expect(page.locator('.recording .meta')).toContainText('1 step, saved');
+  await expect(page.locator('.usage')).toContainText('1 of 25 dashboard recordings used');
+  // Moving between pages doesn't reload the app, and focus follows to the new page.
+  await page.evaluate(() => { window.samePage = true; });
+  await page.locator('.recording-name a').click();
+  await expect(page).toHaveURL(app + '/workflow/1');
+  await expect(page.locator('h1')).toHaveText('Checkout');
+  await expect(page.locator('main')).toBeFocused();
+  await page.locator('.tabs a[href="/account"]').click();
+  await expect(page).toHaveURL(app + '/account');
+  await expect(page.locator('.tabs a[href="/account"]')).toHaveAttribute('aria-current', 'page');
+  await expect(page.locator('.facts')).toContainText('user_1@example.com');
+  expect(await page.evaluate(() => window.samePage)).toBe(true);
+});
+
+test('app: a linked step is the target, and copying its XPath confirms with a check and a toast', async ({ page, context }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: app });
+  await signIn(page, 'email-code', '/workflow/1');
+  await page.goto(app + '/workflow/1#step-1');
+  await expect(page.locator('#step-1')).toHaveAttribute('aria-current', 'step');
+  const copy = page.getByRole('button', { name: 'Copy XPath for step 1' });
+  await copy.click();
+  await expect(copy).toHaveAttribute('data-copied', 'true');
+  await expect(page.locator('.toast-title')).toHaveText('XPath copied');
+  await expect(page.locator('.toast-detail')).toHaveText('//button');
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('//button');
+  // The check and the toast leave on their own.
+  await expect(copy).not.toHaveAttribute('data-copied');
+  await expect(page.locator('.toast')).toHaveCount(0);
 });

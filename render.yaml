@@ -1,10 +1,10 @@
-# Render Blueprint for the QA Ninja web app: a static site built from src/ by build.js.
-# Keep the rewrites and headers in sync with serve.js, which the tests and local development use.
+# Render Blueprint for the QA Ninja web app: a static site that Vite builds into dist/.
+# Keep the rewrites and headers in sync with serve.js, which npm start and the browser tests use.
 services:
   - type: web
     name: qaninja-app
     runtime: static
-    buildCommand: npm run build
+    buildCommand: npm ci --ignore-scripts && npm run build
     staticPublishPath: ./dist
     envVars:
       # Public build settings (see .env.example). Set them in the Render dashboard.
@@ -16,19 +16,22 @@ services:
         sync: false
       - key: APP_ENV
         value: production
+    # The app is one page (index.html); its router shows each of these paths, which the extension and Stripe link to.
+    # There is deliberately no /* catch-all: any other path is a real 404, served from 404.html (the same page, which
+    # shows "Page not found").
     routes:
       - type: rewrite
         source: /sign-in
-        destination: /sign-in.html
+        destination: /index.html
       - type: rewrite
         source: /account
-        destination: /account.html
+        destination: /index.html
       - type: rewrite
         source: /dashboard
-        destination: /dashboard.html
+        destination: /index.html
       - type: rewrite
         source: /workflow/*
-        destination: /workflow.html
+        destination: /index.html
     headers:
       - path: /*
         name: X-Content-Type-Options
@@ -39,10 +42,11 @@ services:
       - path: /*
         name: X-Frame-Options
         value: DENY
-      # The rest of the policy is a meta tag in each page, built from the configured origins.
+      # The rest of the policy is a meta tag in the page, built from the configured origins.
       - path: /*
         name: Content-Security-Policy
         value: "frame-ancestors 'none'"
-      - path: /assets/fonts/*
+      # Vite names every file under /assets/ by its content, so they can be cached for good.
+      - path: /assets/*
         name: Cache-Control
         value: public, max-age=31536000, immutable

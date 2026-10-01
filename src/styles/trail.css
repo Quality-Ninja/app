@@ -1,0 +1,179 @@
+/*
+ * Trails: a recording's steps and the saved recordings run along a dotted gold trail, with a ring on it for each item,
+ * as in the side panel. The trail ends at the last item. In a recording, the last step is the waypoint, a gold diamond;
+ * a step linked with #step-N takes it over and wears the target frame. aria-current carries that for assistive tech;
+ * the waypoint is decoration. Each list sets --rail-inset (the room for the trail), --node-top (the ring's height
+ * beside the first line), and --item-edge (an item's border, which offsets its pseudo-elements).
+ */
+.step-list,
+.recordings {
+  background: var(--trail-dots) 3px 0 / 3px 8px repeat-y;
+}
+
+:is(.step-list, .recordings) > li {
+  position: relative;
+}
+
+:is(.step-list, .recordings) > li::before {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  top: var(--node-top);
+  left: calc(0.5px - var(--rail-inset) - var(--item-edge, 0px));
+  width: 8px;
+  height: 8px;
+  border: 1.5px solid var(--gold-trail);
+  border-radius: 50%;
+  background: var(--navy);
+}
+
+/* Past the last ring, the page covers the rest of the trail. */
+:is(.step-list, .recordings) > li:last-child::after {
+  content: '';
+  position: absolute;
+  top: calc(var(--node-top) + 10px);
+  bottom: calc(-1 * var(--item-edge, 0px));
+  left: calc(-1 * var(--rail-inset) - var(--item-edge, 0px));
+  width: 10px;
+  background: var(--navy);
+}
+
+.step-list > li:last-child::before,
+.step-list > li[aria-current='step']::before {
+  border-color: var(--gold);
+  border-radius: 1px;
+  background: var(--gold);
+  box-shadow: var(--gold-glow);
+  transform: rotate(45deg);
+}
+
+.step-list:has(> li[aria-current='step'])
+  > li:last-child:not([aria-current='step'])::before {
+  border-color: var(--gold-trail);
+  border-radius: 50%;
+  background: var(--navy);
+  box-shadow: none;
+  transform: none;
+}
+
+/* The target frame: the step a link points at. */
+.step[aria-current='step'] {
+  border-color: var(--gold);
+  background: var(--gold-wash);
+  box-shadow: var(--gold-glow);
+}
+
+/* Empty states are lit like the header, a spotlight over the faint grid that fades at the edges, with a ghost trail. */
+.empty-state {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  justify-items: center;
+  max-width: 36rem;
+  padding: var(--space-6) var(--space-5);
+  border-radius: var(--radius-sheet);
+  text-align: center;
+}
+
+.empty-state::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--spotlight), var(--texture-grid);
+  background-size:
+    auto,
+    16px 16px,
+    16px 16px;
+  mask-image: radial-gradient(closest-side, #000 40%, transparent);
+  pointer-events: none;
+}
+
+.empty-state p {
+  max-width: 44ch;
+  color: var(--mist);
+}
+
+.empty-state .button {
+  margin-top: var(--space-2);
+}
+
+.trail-art {
+  width: 180px;
+  height: auto;
+  margin-bottom: var(--space-4);
+  overflow: visible;
+}
+
+.trail-line {
+  fill: none;
+  stroke: var(--gold-trail);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-dasharray: 0 8;
+}
+
+.trail-node {
+  fill: var(--navy);
+  stroke: var(--gold-trail);
+  stroke-width: 1.5;
+}
+
+.trail-waypoint {
+  fill: var(--gold);
+  filter: drop-shadow(0 0 6px rgb(241 196 15 / 0.5));
+}
+
+/* The usage rail: one hairline tick per recording the plan allows (--total), lit up to the number used (--used). */
+.usage-rail {
+  position: relative;
+  height: 6px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--line) 0 2px,
+    transparent 2px calc(100% / var(--total))
+  );
+}
+
+.usage-rail::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--mist) 0 2px,
+    transparent 2px calc(100% / var(--total))
+  );
+  clip-path: inset(0 calc(100% - 100% * var(--used) / var(--total)) 0 0);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* The target frame lands with a brief, stronger wash when a link moves it. */
+  .step[aria-current='step'] {
+    animation: land 480ms ease-out;
+  }
+}
+
+@keyframes land {
+  from {
+    background-color: color-mix(in srgb, var(--gold) 32%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold) 16%, transparent);
+  }
+}
+
+@media (forced-colors: active) {
+  /* A step's border only shows as the target frame; forced colors would otherwise draw every one. */
+  .step:not([aria-current='step']) {
+    border-color: Canvas;
+  }
+
+  .step-list > li:last-child::before,
+  .step-list > li[aria-current='step']::before {
+    background: Highlight;
+    border-color: Highlight;
+  }
+
+  .step[aria-current='step'] {
+    border-color: Highlight;
+  }
+}

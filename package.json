@@ -1,16 +1,50 @@
 {
   "name": "qaninja-app",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "private": true,
-  "description": "QA Ninja web app: sign-in, account, and the recordings dashboard, as a static site",
-  "scripts": {
-    "build": "node build.js",
-    "dev": "node --env-file-if-exists=.env.local build.js && node serve.js",
-    "start": "node serve.js",
-    "test": "playwright test"
-  },
+  "description": "QA Ninja web app: sign-in, account, and the recordings dashboard (Vite, React, TypeScript)",
+  "type": "module",
   "license": "UNLICENSED",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && tsc -b",
+    "start": "node serve.js",
+    "preview": "node serve.js",
+    "typecheck": "tsc -b",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test",
+    "test": "npm run test:unit && npm run test:e2e"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.99.0",
+    "@tanstack/react-router": "^1.168.22",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5"
+  },
   "devDependencies": {
-    "@playwright/test": "1.63.0"
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "1.63.0",
+    "@tanstack/eslint-plugin-query": "^5.99.0",
+    "@tanstack/router-plugin": "^1.167.22",
+    "@trivago/prettier-plugin-sort-imports": "^6.0.2",
+    "@types/node": "^25.6.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "eslint": "^10.2.1",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.5.0",
+    "prettier": "^3.8.3",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.58.2",
+    "vite": "^8.0.8",
+    "vitest": "^4.1.4"
   }
 }
