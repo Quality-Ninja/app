@@ -92,6 +92,12 @@ export function watchIdentity(clerk: Clerk) {
   }
 }
 
+// The signed-in Clerk user ID: the subject the API and the extension both know the account by.
+export async function currentSubject() {
+  const clerk = await ready
+  return clerk.user?.id ?? null
+}
+
 export async function token(fresh = false) {
   const clerk = await ready
   const { user, session } = clerk

@@ -14,7 +14,10 @@ import { Route as UserRouteRouteImport } from './routes/_user/route'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as UserAccountRouteImport } from './routes/_user/account'
 import { Route as UserDashboardRouteImport } from './routes/_user/dashboard'
+import { Route as UserExecuteIndexRouteImport } from './routes/_user/execute.index'
 import { Route as UserWorkflowIdRouteImport } from './routes/_user/workflow.$id'
+import { Route as UserExecuteConnectOpenrouterRouteImport } from './routes/_user/execute.connect.openrouter'
+import { Route as UserExecuteRunsIdRouteImport } from './routes/_user/execute.runs.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -40,9 +43,25 @@ const UserDashboardRoute = UserDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => UserRouteRoute,
 } as any)
+const UserExecuteIndexRoute = UserExecuteIndexRouteImport.update({
+  id: '/execute/',
+  path: '/execute/',
+  getParentRoute: () => UserRouteRoute,
+} as any)
 const UserWorkflowIdRoute = UserWorkflowIdRouteImport.update({
   id: '/workflow/$id',
   path: '/workflow/$id',
+  getParentRoute: () => UserRouteRoute,
+} as any)
+const UserExecuteConnectOpenrouterRoute =
+  UserExecuteConnectOpenrouterRouteImport.update({
+    id: '/execute/connect/openrouter',
+    path: '/execute/connect/openrouter',
+    getParentRoute: () => UserRouteRoute,
+  } as any)
+const UserExecuteRunsIdRoute = UserExecuteRunsIdRouteImport.update({
+  id: '/execute/runs/$id',
+  path: '/execute/runs/$id',
   getParentRoute: () => UserRouteRoute,
 } as any)
 
@@ -52,6 +71,9 @@ export interface FileRoutesByFullPath {
   '/account': typeof UserAccountRoute
   '/dashboard': typeof UserDashboardRoute
   '/workflow/$id': typeof UserWorkflowIdRoute
+  '/execute/': typeof UserExecuteIndexRoute
+  '/execute/connect/openrouter': typeof UserExecuteConnectOpenrouterRoute
+  '/execute/runs/$id': typeof UserExecuteRunsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -59,6 +81,9 @@ export interface FileRoutesByTo {
   '/account': typeof UserAccountRoute
   '/dashboard': typeof UserDashboardRoute
   '/workflow/$id': typeof UserWorkflowIdRoute
+  '/execute': typeof UserExecuteIndexRoute
+  '/execute/connect/openrouter': typeof UserExecuteConnectOpenrouterRoute
+  '/execute/runs/$id': typeof UserExecuteRunsIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -68,12 +93,31 @@ export interface FileRoutesById {
   '/_user/account': typeof UserAccountRoute
   '/_user/dashboard': typeof UserDashboardRoute
   '/_user/workflow/$id': typeof UserWorkflowIdRoute
+  '/_user/execute/': typeof UserExecuteIndexRoute
+  '/_user/execute/connect/openrouter': typeof UserExecuteConnectOpenrouterRoute
+  '/_user/execute/runs/$id': typeof UserExecuteRunsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/sign-in' | '/account' | '/dashboard' | '/workflow/$id'
+  fullPaths:
+    | '/'
+    | '/sign-in'
+    | '/account'
+    | '/dashboard'
+    | '/workflow/$id'
+    | '/execute/'
+    | '/execute/connect/openrouter'
+    | '/execute/runs/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/sign-in' | '/account' | '/dashboard' | '/workflow/$id'
+  to:
+    | '/'
+    | '/sign-in'
+    | '/account'
+    | '/dashboard'
+    | '/workflow/$id'
+    | '/execute'
+    | '/execute/connect/openrouter'
+    | '/execute/runs/$id'
   id:
     | '__root__'
     | '/'
@@ -82,6 +126,9 @@ export interface FileRouteTypes {
     | '/_user/account'
     | '/_user/dashboard'
     | '/_user/workflow/$id'
+    | '/_user/execute/'
+    | '/_user/execute/connect/openrouter'
+    | '/_user/execute/runs/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -127,11 +174,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UserDashboardRouteImport
       parentRoute: typeof UserRouteRoute
     }
+    '/_user/execute/': {
+      id: '/_user/execute/'
+      path: '/execute'
+      fullPath: '/execute/'
+      preLoaderRoute: typeof UserExecuteIndexRouteImport
+      parentRoute: typeof UserRouteRoute
+    }
     '/_user/workflow/$id': {
       id: '/_user/workflow/$id'
       path: '/workflow/$id'
       fullPath: '/workflow/$id'
       preLoaderRoute: typeof UserWorkflowIdRouteImport
+      parentRoute: typeof UserRouteRoute
+    }
+    '/_user/execute/connect/openrouter': {
+      id: '/_user/execute/connect/openrouter'
+      path: '/execute/connect/openrouter'
+      fullPath: '/execute/connect/openrouter'
+      preLoaderRoute: typeof UserExecuteConnectOpenrouterRouteImport
+      parentRoute: typeof UserRouteRoute
+    }
+    '/_user/execute/runs/$id': {
+      id: '/_user/execute/runs/$id'
+      path: '/execute/runs/$id'
+      fullPath: '/execute/runs/$id'
+      preLoaderRoute: typeof UserExecuteRunsIdRouteImport
       parentRoute: typeof UserRouteRoute
     }
   }
@@ -141,12 +209,18 @@ interface UserRouteRouteChildren {
   UserAccountRoute: typeof UserAccountRoute
   UserDashboardRoute: typeof UserDashboardRoute
   UserWorkflowIdRoute: typeof UserWorkflowIdRoute
+  UserExecuteIndexRoute: typeof UserExecuteIndexRoute
+  UserExecuteConnectOpenrouterRoute: typeof UserExecuteConnectOpenrouterRoute
+  UserExecuteRunsIdRoute: typeof UserExecuteRunsIdRoute
 }
 
 const UserRouteRouteChildren: UserRouteRouteChildren = {
   UserAccountRoute: UserAccountRoute,
   UserDashboardRoute: UserDashboardRoute,
   UserWorkflowIdRoute: UserWorkflowIdRoute,
+  UserExecuteIndexRoute: UserExecuteIndexRoute,
+  UserExecuteConnectOpenrouterRoute: UserExecuteConnectOpenrouterRoute,
+  UserExecuteRunsIdRoute: UserExecuteRunsIdRoute,
 }
 
 const UserRouteRouteWithChildren = UserRouteRoute._addFileChildren(

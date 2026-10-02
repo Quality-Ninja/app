@@ -43,3 +43,9 @@ export const CheckIcon = () => (
     <path d='M20 6 9 17l-5-5' />
   </Icon>
 )
+
+export const PlayIcon = () => (
+  <Icon className='icon-play'>
+    <path d='M7 5v14l11-7z' />
+  </Icon>
+)

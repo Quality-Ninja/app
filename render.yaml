@@ -14,9 +14,12 @@ services:
         sync: false
       - key: CLERK_FRONTEND_API
         sync: false
+      - key: EXTENSION_ID
+        sync: false
       - key: APP_ENV
         value: production
-    # The app is one page (index.html); its router shows each of these paths, which the extension and Stripe link to.
+    # The app is one page (index.html); its router shows each of these paths, which the extension, Stripe, OpenRouter
+    # (/execute/connect/openrouter) and coding agents (/execute/runs/*) link to.
     # There is deliberately no /* catch-all: any other path is a real 404, served from 404.html (the same page, which
     # shows "Page not found").
     routes:
@@ -31,6 +34,15 @@ services:
         destination: /index.html
       - type: rewrite
         source: /workflow/*
+        destination: /index.html
+      - type: rewrite
+        source: /execute
+        destination: /index.html
+      - type: rewrite
+        source: /execute/runs/*
+        destination: /index.html
+      - type: rewrite
+        source: /execute/connect/openrouter
         destination: /index.html
     headers:
       - path: /*

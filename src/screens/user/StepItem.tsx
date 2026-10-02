@@ -1,10 +1,12 @@
 import type { RecordingStep } from '@/lib/types'
-import { useScreenshot } from '@/hooks/useScreenshot'
+import { stepTitle } from '@/lib/views'
 import { CopyButton } from '@/components/CopyButton'
 import { LocalTime } from '@/components/LocalTime'
+import { Screenshot } from '@/components/Screenshot'
 
-// One recorded step on the trail: what was clicked, where, its XPath, and its screenshot. `current` is the step a
-// #step-N link points at; it wears the target frame and takes the waypoint over from the last step.
+// One recorded step on the trail: what it did (a click reads as its label), where, its XPath, and its screenshot. A step
+// with no XPath (opening a page) has no XPath box. `current` is the step a #step-N link points at; it wears the target
+// frame and takes the waypoint over from the last step.
 export function StepItem({
   workflowId,
   step,
@@ -18,7 +20,7 @@ export function StepItem({
   shot?: string
   current: boolean
 }) {
-  const label = step.label || 'Click'
+  const label = stepTitle(step)
   return (
     <li
       id={`step-${n}`}
@@ -31,10 +33,12 @@ export function StepItem({
           <p className='step-url meta' title={step.url}>
             {step.url}
           </p>
-          <div className='well'>
-            <code>{step.xpath}</code>
-            <CopyButton text={step.xpath} label={`for step ${n}`} />
-          </div>
+          {step.xpath ? (
+            <div className='well'>
+              <code>{step.xpath}</code>
+              <CopyButton text={step.xpath} label={`for step ${n}`} />
+            </div>
+          ) : null}
           <p className='step-meta meta'>
             {step.timestamp ? (
               <LocalTime value={step.timestamp} kind='time' />
@@ -50,22 +54,5 @@ export function StepItem({
         ) : null}
       </div>
     </li>
-  )
-}
-
-// The link and image get their blob: URL once the screenshot has loaded (useScreenshot).
-function Screenshot({ path, alt }: { path: string; alt: string }) {
-  const { ref, url } = useScreenshot(path)
-  return (
-    <a
-      ref={ref}
-      className='step-shot'
-      href={url}
-      target='_blank'
-      rel='noopener'
-      data-shot={path}
-    >
-      <img alt={alt} src={url} />
-    </a>
   )
 }

@@ -1,20 +1,23 @@
 /*
- * Trails: a recording's steps and the saved recordings run along a dotted gold trail, with a ring on it for each item,
- * as in the side panel. The trail ends at the last item. In a recording, the last step is the waypoint, a gold diamond;
- * a step linked with #step-N takes it over and wears the target frame. aria-current carries that for assistive tech;
- * the waypoint is decoration. Each list sets --rail-inset (the room for the trail), --node-top (the ring's height
- * beside the first line), and --item-edge (an item's border, which offsets its pseudo-elements).
+ * Trails: a recording's (or a run's) steps, the saved recordings, Execute's tests, and runs run along a dotted gold
+ * trail, with a ring on it for each item, as in the side panel. The trail ends at the last item. In a recording, the
+ * last step is the waypoint, a gold diamond; a step linked with #step-N takes it over and wears the target frame, as
+ * does the open test. aria-current carries that for assistive tech; the waypoint is decoration. Each list sets
+ * --rail-inset (the room for the trail), --node-top (the ring's height beside the first line), and --item-edge (an
+ * item's border, which offsets its pseudo-elements).
  */
 .step-list,
-.recordings {
+.recordings,
+.run-list,
+.test-list {
   background: var(--trail-dots) 3px 0 / 3px 8px repeat-y;
 }
 
-:is(.step-list, .recordings) > li {
+:is(.step-list, .recordings, .run-list, .test-list) > li {
   position: relative;
 }
 
-:is(.step-list, .recordings) > li::before {
+:is(.step-list, .recordings, .run-list, .test-list) > li::before {
   content: '';
   position: absolute;
   z-index: 1;
@@ -28,7 +31,7 @@
 }
 
 /* Past the last ring, the page covers the rest of the trail. */
-:is(.step-list, .recordings) > li:last-child::after {
+:is(.step-list, .recordings, .run-list, .test-list) > li:last-child::after {
   content: '';
   position: absolute;
   top: calc(var(--node-top) + 10px);
@@ -39,7 +42,8 @@
 }
 
 .step-list > li:last-child::before,
-.step-list > li[aria-current='step']::before {
+.step-list > li[aria-current='step']::before,
+.test-list > li[data-selected]::before {
   border-color: var(--gold);
   border-radius: 1px;
   background: var(--gold);
@@ -56,8 +60,9 @@
   transform: none;
 }
 
-/* The target frame: the step a link points at. */
-.step[aria-current='step'] {
+/* The target frame: the step a link points at, and the open test. */
+.step[aria-current='step'],
+.test-item[data-selected] {
   border-color: var(--gold);
   background: var(--gold-wash);
   box-shadow: var(--gold-glow);
@@ -168,12 +173,14 @@
   }
 
   .step-list > li:last-child::before,
-  .step-list > li[aria-current='step']::before {
+  .step-list > li[aria-current='step']::before,
+  .test-list > li[data-selected]::before {
     background: Highlight;
     border-color: Highlight;
   }
 
-  .step[aria-current='step'] {
+  .step[aria-current='step'],
+  .test-item[data-selected] {
     border-color: Highlight;
   }
 }

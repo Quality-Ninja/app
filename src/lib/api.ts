@@ -14,7 +14,10 @@ export class ApiError extends Error {
   }
 }
 
-type RequestOptions = { method?: 'GET' | 'POST' | 'DELETE'; body?: unknown }
+type RequestOptions = {
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
+  body?: unknown
+}
 
 async function send(
   path: string,

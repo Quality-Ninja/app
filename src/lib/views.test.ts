@@ -2,17 +2,23 @@ import { describe, expect, it } from 'vitest'
 import type { Artifact } from './types'
 import {
   BAD_LINK,
+  EXECUTE_UNAVAILABLE,
   NOT_FOUND,
   PLAN_REQUIRED,
   RECORDING_MISSING,
+  RUN_MISSING,
   errorPage,
   groupFiles,
+  isRunId,
   isWorkflowId,
   planName,
   safeNext,
   screenshotIds,
+  stepTitle,
   utcIso,
 } from './views'
+
+const RUN = 'run_5eed0000000000000000000000000001'
 
 const artifact = (filename: string, media_type = 'text/plain'): Artifact => ({
   id: `id-${filename}`,
@@ -28,6 +34,11 @@ describe('safeNext', () => {
       '/account?checkout=success',
       '/workflow/1',
       '/workflow/123456789012345678',
+      '/execute',
+      '/execute?tab=run',
+      '/execute?tab=runs',
+      '/execute?tab=agents',
+      `/execute/runs/${RUN}`,
     ])
       expect(safeNext(next)).toBe(next)
   })
@@ -43,8 +54,30 @@ describe('safeNext', () => {
       '/workflow/1234567890123456789',
       '/dashboard?deleted=1',
       '',
+      '/execute/',
+      '/execute?tab=billing',
+      '/execute?tab=runs&next=https://evil.example',
+      '/execute?tab=run&test=1',
+      '/execute#runs',
+      '/execute/runs/run_5EED0000000000000000000000000001',
+      '/execute/runs/run_5eed000000000000000000000000001',
+      `/execute/runs/${RUN}0`,
+      `/execute/runs/${RUN}/`,
+      `/execute/runs/${RUN}?x=1`,
+      '/execute/runs/%2e%2e',
+      '/execute/connect/openrouter',
+      '/execute/connect/openrouter?code=abc',
     ])
       expect(safeNext(next)).toBe('/dashboard')
+  })
+})
+
+describe('isRunId', () => {
+  it('accepts the API run IDs only', () => {
+    expect(isRunId(RUN)).toBe(true)
+    expect(isRunId('run_5eed')).toBe(false)
+    expect(isRunId(RUN.toUpperCase())).toBe(false)
+    expect(isRunId(`${RUN} `)).toBe(false)
   })
 })
 
@@ -171,6 +204,10 @@ describe('errorPage', () => {
       RECORDING_MISSING
     )
     expect(errorPage(404, 'Not found.')).toBe(NOT_FOUND)
+    expect(errorPage(404, 'Run not found.', { run: true })).toBe(RUN_MISSING)
+    expect(errorPage(403, 'Execute is not available yet.')).toBe(
+      EXECUTE_UNAVAILABLE
+    )
     expect(errorPage(422, 'Invalid.')).toBe(BAD_LINK)
     expect(errorPage(502, 'Billing is temporarily unavailable.')).toMatchObject(
       {
@@ -178,5 +215,95 @@ describe('errorPage', () => {
         message: 'Billing is temporarily unavailable.',
       }
     )
+  })
+})
+
+describe('stepTitle', () => {
+  const step = { url: 'https://shop.example.com/login', xpath: '//input[1]' }
+
+  it('reads clicks and version 1 steps as their label, as before', () => {
+    expect(stepTitle({ ...step, label: 'Click checkout' })).toBe(
+      'Click checkout'
+    )
+    expect(stepTitle(step)).toBe('Click')
+    expect(stepTitle({ ...step, label: '' })).toBe('Click')
+    expect(stepTitle({ ...step, label: 'Sign in', action_type: 'click' })).toBe(
+      'Sign in'
+    )
+  })
+
+  it('reads version 2 steps as their action', () => {
+    expect(
+      stepTitle({
+        ...step,
+        action_type: 'fill',
+        label: 'Email',
+        value: 'qa@example.com',
+      })
+    ).toBe('Typed "qa@example.com" into Email')
+    expect(
+      stepTitle({ ...step, action_type: 'fill', label: 'Email', value: '' })
+    ).toBe('Cleared Email')
+    expect(
+      stepTitle({
+        ...step,
+        action_type: 'fill',
+        label: 'Email',
+        value: '',
+        value_ref: { kind: 'input', name: 'email_1' },
+      })
+    ).toBe('Typed an input (email_1) into Email')
+    expect(
+      stepTitle({
+        ...step,
+        action_type: 'select',
+        label: 'Country',
+        value: 'Canada',
+      })
+    ).toBe('Selected "Canada" in Country')
+    expect(
+      stepTitle({ ...step, action_type: 'check', label: 'Remember me' })
+    ).toBe('Checked Remember me')
+    expect(
+      stepTitle({ ...step, action_type: 'uncheck', label: 'Newsletter' })
+    ).toBe('Unchecked Newsletter')
+    expect(stepTitle({ ...step, action_type: 'press', key: 'Tab' })).toBe(
+      'Pressed Tab'
+    )
+    expect(stepTitle({ ...step, action_type: 'press' })).toBe('Pressed Enter')
+    expect(
+      stepTitle({
+        url: 'https://shop.example.com/orders',
+        action_type: 'navigate',
+      })
+    ).toBe('Opened https://shop.example.com/orders')
+    expect(stepTitle({ ...step, action_type: 'fill' })).toBe('Cleared a field')
+  })
+
+  it('never shows a value for a sensitive step', () => {
+    const secret = {
+      ...step,
+      action_type: 'fill',
+      label: 'Password',
+      sensitive: true,
+      value_ref: { kind: 'secret' as const, name: 'password_1' },
+    }
+    expect(stepTitle(secret)).toBe('Typed a secret (password_1) into Password')
+    // Even if a value slipped through, it isn't shown.
+    expect(stepTitle({ ...secret, value: 'hunter2' })).toBe(
+      'Typed a secret (password_1) into Password'
+    )
+    expect(stepTitle({ ...secret, value: 'hunter2', value_ref: null })).toBe(
+      'Typed a secret into Password'
+    )
+    expect(
+      stepTitle({
+        ...step,
+        action_type: 'select',
+        label: 'Card',
+        sensitive: true,
+        value: '4242',
+      })
+    ).toBe('Selected an option in Card')
   })
 })

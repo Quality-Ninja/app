@@ -62,6 +62,50 @@ const SQLITE_TIMESTAMP = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/
 export const planName = (code: string) =>
   PLAN_NAMES[code as PlanCode] ?? String(code)
 
+// What a step did, in words. Clicks (and every schema 1 step) read as their label, as they always have; schema 2 steps
+// read as their action. A sensitive step never shows a value: it has none, only the name of the secret a run types.
+export type StepWords = {
+  label?: string
+  action_type?: string
+  value?: string | null
+  sensitive?: boolean
+  value_ref?: { kind?: string; name?: string } | null
+  key?: string | null
+  url?: string
+}
+
+export function stepTitle(step: StepWords): string {
+  const secret = step.sensitive || step.value_ref?.kind === 'secret'
+  const named = (what: string) =>
+    step.value_ref?.name ? `${what} (${step.value_ref.name})` : what
+  switch (step.action_type) {
+    case 'fill': {
+      const target = step.label || 'a field'
+      if (secret) return `Typed ${named('a secret')} into ${target}`
+      if (step.value_ref) return `Typed ${named('an input')} into ${target}`
+      return step.value
+        ? `Typed "${step.value}" into ${target}`
+        : `Cleared ${target}`
+    }
+    case 'select': {
+      const target = step.label || 'a list'
+      return secret || !step.value
+        ? `Selected an option in ${target}`
+        : `Selected "${step.value}" in ${target}`
+    }
+    case 'check':
+      return `Checked ${step.label || 'a checkbox'}`
+    case 'uncheck':
+      return `Unchecked ${step.label || 'a checkbox'}`
+    case 'press':
+      return `Pressed ${step.key || 'Enter'}`
+    case 'navigate':
+      return `Opened ${step.url || 'a page'}`
+    default:
+      return step.label || 'Click'
+  }
+}
+
 // SQLite CURRENT_TIMESTAMP is UTC without a zone; mark it so browsers don't read it as local time.
 export function utcIso(value: unknown) {
   const text = String(value ?? '')
@@ -127,14 +171,26 @@ function compare(a: GroupKey, b: GroupKey) {
 }
 
 // No arbitrary URLs, query strings, encoded paths or fragments cross the sign-in boundary.
+const NEXT_PAGES = [
+  '/dashboard',
+  '/account',
+  '/account?checkout=success',
+  '/execute',
+  '/execute?tab=run',
+  '/execute?tab=runs',
+  '/execute?tab=agents',
+]
+
 export function safeNext(value: string) {
-  if (['/dashboard', '/account', '/account?checkout=success'].includes(value))
-    return value
+  if (NEXT_PAGES.includes(value)) return value
   if (/^\/workflow\/[1-9][0-9]{0,17}$/.test(value)) return value
+  if (/^\/execute\/runs\/run_[0-9a-f]{32}$/.test(value)) return value
   return '/dashboard'
 }
 
 export const isWorkflowId = (value: string) => /^[1-9][0-9]{0,17}$/.test(value)
+
+export const isRunId = (value: string) => /^run_[0-9a-f]{32}$/.test(value)
 
 export type ErrorInfo = {
   title: string
@@ -149,6 +205,7 @@ const page = (
 ): ErrorInfo => ({ title, message, action })
 
 const toRecordings = { label: 'Go to recordings', href: '/dashboard' }
+const toRuns = { label: 'Go to runs', href: '/execute?tab=runs' }
 
 export const PLAN_REQUIRED = page(
   'Viewing recordings needs an active plan',
@@ -170,12 +227,27 @@ export const NOT_FOUND = page(
   'Check the address, or go back to your recordings.',
   toRecordings
 )
+export const RUN_MISSING = page(
+  "We couldn't find that run",
+  'It may have been deleted, or it belongs to another account.',
+  toRuns
+)
+export const BAD_RUN_LINK = page(
+  "That link doesn't look right",
+  'Check the address, or go back to your runs.',
+  toRuns
+)
+export const EXECUTE_UNAVAILABLE = page(
+  'Execute is not available yet',
+  'Running your tests with agents is coming soon. Your recordings are ready when it arrives.',
+  toRecordings
+)
 
 // The page to show when loading a page's data fails. Messages come from the API, which never echoes input.
 export function errorPage(
   status: number,
   detail: string,
-  { recording = false } = {}
+  { recording = false, run = false } = {}
 ): ErrorInfo {
   if (status === 403) {
     if (/email/i.test(detail))
@@ -185,9 +257,11 @@ export function errorPage(
       })
     // A suspended account can't use any page, so there is nowhere to send it; Sign out stays in the header.
     if (/suspended/i.test(detail)) return page('Account suspended', detail)
+    if (/Execute is not available/i.test(detail)) return EXECUTE_UNAVAILABLE
     return PLAN_REQUIRED
   }
-  if (status === 404) return recording ? RECORDING_MISSING : NOT_FOUND
+  if (status === 404)
+    return recording ? RECORDING_MISSING : run ? RUN_MISSING : NOT_FOUND
   if (status === 422) return BAD_LINK
   return page('Something went wrong', detail, toRecordings)
 }

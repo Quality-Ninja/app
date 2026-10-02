@@ -129,14 +129,19 @@ button svg,
   color: var(--gold);
 }
 
-/* Fields: only Clerk's sign-in form has them; these fill in whatever its classes leave unstyled. */
+/*
+ * Fields: inset wells with an --edge border, gold when focused. Execute's settings and agent forms use them; on the
+ * sign-in page they fill in whatever Clerk's own classes leave unstyled.
+ */
 label {
   display: block;
   margin-bottom: var(--space-1);
   font-weight: 600;
 }
 
-input {
+input,
+textarea,
+select {
   width: 100%;
   min-height: 40px;
   padding: 0 var(--space-3);
@@ -146,13 +151,298 @@ input {
   color: var(--paper);
 }
 
-input:focus-visible {
+textarea {
+  display: block;
+  padding: var(--space-2) var(--space-3);
+  line-height: 1.5;
+  resize: vertical;
+}
+
+select {
+  cursor: pointer;
+}
+
+:is(input, textarea)::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
+
+:is(input, textarea, select):focus-visible {
   outline-offset: 0;
   border-color: var(--gold);
 }
 
-input[aria-invalid='true'] {
+:is(input, textarea, select)[aria-invalid='true'] {
   border-color: var(--signal);
+}
+
+:is(input, textarea, select):disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+/* Radio buttons and checkboxes keep their native shape, checked in gold. */
+input:is([type='radio'], [type='checkbox']) {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  accent-color: var(--gold);
+  cursor: pointer;
+}
+
+input:is([type='radio'], [type='checkbox']):focus-visible {
+  outline-offset: 2px;
+}
+
+/* A field: its label, the control, a hint in meta text, and its problem, if any, in danger text. */
+.fields {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.field {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.field > label,
+.field > legend {
+  margin: 0;
+  padding: 0;
+  font-weight: 600;
+}
+
+.field-hint,
+.field-error {
+  margin: 0;
+  font-size: var(--text-sm);
+}
+
+.field-hint {
+  color: var(--muted);
+}
+
+.field-error {
+  color: var(--danger-text);
+}
+
+/* A radio group as cards: the chosen one wears the target frame's gold edge and wash. */
+.choices {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.choices > legend {
+  margin-bottom: var(--space-2);
+  padding: 0;
+  font-weight: 600;
+}
+
+.choices > .field-hint {
+  margin-top: calc(-1 * var(--space-1));
+}
+
+.choices > label.choice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--raised) 35%, transparent);
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.choice input {
+  margin-top: 3px;
+}
+
+.choice:hover:not(:has(input:disabled)) {
+  border-color: var(--edge);
+}
+
+.choice:has(input:checked),
+.choice:has(input:checked):hover {
+  border-color: var(--gold);
+  background: var(--gold-wash);
+}
+
+.choice:has(input:focus-visible) {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.choice input:focus-visible {
+  outline: none;
+}
+
+.choice:has(input:disabled) {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.choice-text {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+  min-width: 0;
+}
+
+.choice-title {
+  font-weight: 600;
+}
+
+.choice-detail {
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+.choice .usage-rail {
+  margin-top: var(--space-2);
+}
+
+/*
+ * Badges: a verdict or a status in a small pill with a dot. The word carries the meaning; color repeats it: ok green
+ * for passed, signal red for failed and errors, muted for blocked and ended runs, and a gold edge while a run is live.
+ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 1px var(--space-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--mist);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  line-height: 1.6;
+  white-space: nowrap;
+}
+
+.badge:is([data-verdict], [data-status], [data-step-status])::before {
+  content: '';
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.verdict-passed,
+.step-passed {
+  border-color: color-mix(in srgb, var(--ok) 50%, transparent);
+  background: color-mix(in srgb, var(--ok) 10%, transparent);
+  color: var(--ok);
+}
+
+.verdict-failed,
+.step-failed,
+.status-error {
+  border-color: color-mix(in srgb, var(--signal) 70%, transparent);
+  background: color-mix(in srgb, var(--signal) 14%, transparent);
+  color: var(--danger-text);
+}
+
+.verdict-blocked,
+.step-blocked {
+  border-color: var(--edge);
+  color: var(--mist);
+}
+
+.status-queued,
+.status-running,
+.step-healed {
+  border-color: var(--gold-trail);
+  color: var(--paper);
+}
+
+.status-completed,
+.status-cancelled,
+.step-skipped,
+.step-pending {
+  color: var(--muted);
+}
+
+/* In-page tabs (role=tablist): the site header's underline tabs, as buttons. */
+.sub-tabs {
+  margin-bottom: var(--space-5);
+  border-bottom: 1px solid var(--line);
+}
+
+.sub-tabs [role='tab'] {
+  min-height: 44px;
+  margin-bottom: -1px;
+  padding: 0 var(--space-1);
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: none;
+  color: var(--muted);
+}
+
+.sub-tabs [role='tab']:hover:not(:disabled) {
+  border-bottom-color: var(--edge);
+  background: none;
+  color: var(--paper);
+}
+
+.sub-tabs [role='tab'][aria-selected='true'],
+.sub-tabs [role='tab'][aria-selected='true']:hover {
+  border-bottom-color: var(--gold);
+  color: var(--paper);
+}
+
+.sub-tabs [role='tab']:focus-visible {
+  outline-offset: -2px;
+}
+
+/* A modal question (<dialog>), dressed like a cover sheet: flat raised, a gold trail top edge, and a lift. */
+.dialog {
+  width: min(34rem, calc(100vw - 2 * var(--space-4)));
+  max-height: calc(100vh - 2 * var(--space-5));
+  padding: var(--space-5);
+  border: 1px solid var(--line);
+  border-top: 2px solid var(--gold-trail);
+  border-radius: var(--radius-sheet);
+  background: var(--raised);
+  color: var(--paper);
+  box-shadow: var(--highlight-top), var(--shadow-overlay);
+}
+
+.dialog::backdrop {
+  background: rgb(3 8 16 / 0.6);
+}
+
+.dialog h2 {
+  font-size: var(--text-lg);
+}
+
+.dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin-top: var(--space-5);
+}
+
+/* On raised surfaces, a quiet button's hover steps up to the line color. */
+:is(.dialog, .card) .quiet:hover:not(:disabled) {
+  background: var(--line);
 }
 
 /* Wells: inset code, such as a step's XPath, read-only here. */
@@ -205,7 +495,11 @@ input[aria-invalid='true'] {
       transform var(--ease);
   }
 
-  :is(button, .button):not([class*='cl-'], .link-button):active:not(:disabled) {
+  :is(button, .button):not(
+      [class*='cl-'],
+      .link-button,
+      [role='tab']
+    ):active:not(:disabled) {
     transform: scale(0.97);
   }
 
@@ -222,11 +516,40 @@ input[aria-invalid='true'] {
   [data-copied] .icon-done {
     animation: pop 240ms cubic-bezier(0.3, 1.5, 0.6, 1);
   }
+
+  :is(input, textarea, select),
+  .choice {
+    transition:
+      background-color var(--ease),
+      border-color var(--ease);
+  }
+
+  /* A running run waits on the browser, so its dot keeps breathing, like the recording dot. */
+  .status-running::before {
+    animation: breathe 1.6s ease-in-out infinite;
+  }
+
+  .dialog[open] {
+    animation: rise 200ms cubic-bezier(0.2, 0.9, 0.3, 1);
+  }
+}
+
+@keyframes breathe {
+  50% {
+    opacity: 0.35;
+  }
 }
 
 @keyframes pop {
   from {
     opacity: 0;
     transform: scale(0.4);
+  }
+}
+
+@media (forced-colors: active) {
+  .badge,
+  .choice:has(input:checked) {
+    border-color: CanvasText;
   }
 }

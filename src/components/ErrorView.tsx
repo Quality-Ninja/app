@@ -31,9 +31,11 @@ export function ErrorView({
 export function QueryError({
   error,
   recording = false,
+  run = false,
 }: {
   error: Error
   recording?: boolean
+  run?: boolean
 }) {
   const { say } = useNotice()
   const answer = error instanceof ApiError ? error : null
@@ -43,7 +45,7 @@ export function QueryError({
   if (!answer || answer.status === 401) return null
   return (
     <ErrorView
-      info={errorPage(answer.status, answer.message, { recording })}
+      info={errorPage(answer.status, answer.message, { recording, run })}
       status={answer.status}
     />
   )

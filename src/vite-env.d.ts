@@ -5,4 +5,5 @@ declare const __APP_CONFIG__: {
   readonly apiBaseUrl: string
   readonly clerkPublishableKey: string
   readonly clerkFrontendApi: string
+  readonly extensionId: string
 }

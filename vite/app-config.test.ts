@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { readAppConfig } from './app-config.ts'
+import { DEFAULT_EXTENSION_ID, readAppConfig } from './app-config.ts'
 import { clerkScripts, contentSecurityPolicy } from './qaninja-html.ts'
 
 const live = {
   API_BASE_URL: 'https://api.qaninja.studio/',
   CLERK_PUBLISHABLE_KEY: 'pk_live_Y2xlcmsucWFuaW5qYS5zdHVkaW8k',
   CLERK_FRONTEND_API: 'https://clerk.qaninja.studio',
+  EXTENSION_ID: 'abcdefghijklmnopabcdefghijklmnop',
   APP_ENV: 'production',
 }
 
@@ -15,15 +16,38 @@ describe('readAppConfig', () => {
       apiBaseUrl: 'https://api.qaninja.studio',
       clerkPublishableKey: 'pk_live_Y2xlcmsucWFuaW5qYS5zdHVkaW8k',
       clerkFrontendApi: 'https://clerk.qaninja.studio',
+      extensionId: 'abcdefghijklmnopabcdefghijklmnop',
     })
   })
 
-  it('defaults to the local API', () => {
+  it('defaults to the local API and the development extension', () => {
     expect(readAppConfig({})).toEqual({
       apiBaseUrl: 'http://localhost:8000',
       clerkPublishableKey: '',
       clerkFrontendApi: '',
+      extensionId: 'omlmffaaomacajicfhfofoackdnfocdg',
     })
+    expect(readAppConfig({ EXTENSION_ID: '  ' }).extensionId).toBe(
+      DEFAULT_EXTENSION_ID
+    )
+  })
+
+  it('refuses anything but a Chrome extension ID', () => {
+    expect(
+      readAppConfig({ EXTENSION_ID: ' omlmffaaomacajicfhfofoackdnfocdg ' })
+        .extensionId
+    ).toBe('omlmffaaomacajicfhfofoackdnfocdg')
+    for (const id of [
+      'omlmffaaomacajicfhfofoackdnfocd',
+      'omlmffaaomacajicfhfofoackdnfocdgg',
+      'OMLMFFAAOMACAJICFHFOFOACKDNFOCDG',
+      'qmlmffaaomacajicfhfofoackdnfocdg',
+      'omlmffaaomacajicfhfofoackdnfocd1',
+      'chrome-extension://omlmffaaomacajicfhfofoackdnfocdg',
+    ])
+      expect(() => readAppConfig({ EXTENSION_ID: id })).toThrow(
+        'EXTENSION_ID must be a Chrome extension ID'
+      )
   })
 
   it('refuses anything but an origin', () => {

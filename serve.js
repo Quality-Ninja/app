@@ -22,6 +22,9 @@ const PAGES = [
   /^\/account$/,
   /^\/dashboard$/,
   /^\/workflow\/[^/]+$/,
+  /^\/execute$/,
+  /^\/execute\/runs\/[^/]+$/,
+  /^\/execute\/connect\/openrouter$/,
 ]
 const TYPES = {
   '.html': 'text/html; charset=utf-8',

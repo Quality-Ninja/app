@@ -7,8 +7,10 @@ import { ActionButton } from './ActionButton'
 export function SiteHeader() {
   const { signedIn } = useAuth()
   const pathname = useLocation({ select: (location) => location.pathname })
-  // A recording belongs to Recordings, so that tab stays marked there (the link itself marks the current page).
+  // A recording belongs to Recordings, and a run or an agent sign-in to Execute, so those tabs stay marked there (the
+  // link itself marks the current page).
   const inRecording = pathname.startsWith('/workflow/') ? 'true' : undefined
+  const inExecute = pathname.startsWith('/execute/') ? 'true' : undefined
   return (
     <header className='site-header'>
       <div className='site-header-inner'>
@@ -19,6 +21,14 @@ export function SiteHeader() {
         <nav className='tabs' aria-label='Main'>
           <Link to='/dashboard' data-tab='dashboard' aria-current={inRecording}>
             Recordings
+          </Link>
+          <Link
+            to='/execute'
+            data-tab='execute'
+            aria-current={inExecute}
+            activeOptions={{ exact: true, includeSearch: false }}
+          >
+            Execute
           </Link>
           <Link to='/account' data-tab='account'>
             Account
